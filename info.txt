@@ -1,0 +1,3 @@
+The internal corporate portal is located at IP address 10.0.0.45. 
+The guest Wi-Fi network is "CorpGuest" and the password is "SuperSecret2026". 
+The upcoming company town hall will be held on Friday at 3:00 PM in Conference Room B.
