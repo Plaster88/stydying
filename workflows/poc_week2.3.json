@@ -1,0 +1,246 @@
+{
+  "name": "Daily Briefing POC",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "ee88e833-3280-47ad-b0ac-f392f86c35bc",
+      "name": "Error Workflow",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "{\"alert\": \"Security incident detected\", \"action\": \"blocked\"}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        48
+      ],
+      "id": "72c003d0-b20f-4f9f-b55a-405ea8635f16",
+      "name": "Alerting Dummy"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        -48
+      ],
+      "id": "adafa452-a3d1-4948-aee2-79489898e6e2",
+      "name": "Daily Intelligence Intake"
+    },
+    {
+      "parameters": {
+        "url": "http://ip-api.com/json/8.8.8.8",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -640,
+        -48
+      ],
+      "id": "56c1381d-8ebe-44b3-8301-71f4534171e0",
+      "name": "Fetch IP Reputation"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47324095-0b06-43f8-bc10-9989fca5893d",
+              "name": "status",
+              "value": "={{ $json.status }}",
+              "type": "string"
+            },
+            {
+              "id": "504b8ce7-484e-41b6-9fad-f2b4fb506c2d",
+              "name": "country",
+              "value": "={{ $json.country }}",
+              "type": "string"
+            },
+            {
+              "id": "ae9afc0c-15bd-4053-9d56-daa6dae5839a",
+              "name": "query",
+              "value": "={{ $json.query }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -432,
+        -48
+      ],
+      "id": "eaccc459-38ad-4fe4-9e38-64bb93f7bdcd",
+      "name": "Normalize Data Schema"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d5ecc8f9-54b8-4705-8e46-3e3e2e321098",
+              "leftValue": "={{ $json.country }}",
+              "rightValue": "United States",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        -48
+      ],
+      "id": "9e62a231-d266-4707-ad5a-86fcb2ea199f",
+      "name": "Threat Triage Engine"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/02613ca7-84b6-41b8-97ad-0e9864ef1aff",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"alert_type\": \"Security_Triage\",\n  \"ip_address\": \"{{ $json.query }}\",\n  \"origin_country\": \"{{ $json.country }}\",\n  \"status\": \"Suspicious\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -16,
+        -128
+      ],
+      "id": "3ddfce11-feb3-4f4d-9fa6-c6778e27c7e7",
+      "name": "Dispatch Security Alert"
+    },
+    {
+      "parameters": {
+        "content": "Ingestion Layer",
+        "height": 256,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -928,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "39ff2c48-a4f7-4e21-a9ce-23e3c869bddd",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Response Layer",
+        "height": 400,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "d70a0355-e9d8-4c53-a424-a8e4bd7f09ec",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily Intelligence Intake": {
+      "main": [
+        [
+          {
+            "node": "Fetch IP Reputation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch IP Reputation": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Data Schema": {
+      "main": [
+        [
+          {
+            "node": "Threat Triage Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threat Triage Engine": {
+      "main": [
+        [
+          {
+            "node": "Dispatch Security Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerting Dummy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c0bae46e-fdec-4e21-903a-e303d245acc4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d890697869b19ad6a13a6eaaa75821a5086d3fe3b52f148d574a0ca7e16a90df"
+  },
+  "id": "eu4nipxLb66LKliG",
+  "tags": []
+}
