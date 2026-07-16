@@ -1,14 +1,5 @@
-[Daily Intelligence Intake] 
-          |
-          v
-[Fetch IP Reputation] (IP-API)
-          |
-          v
-[Normalize Data Schema]
-          |
-          v
-[Threat Triage Engine]
-          |
-     True | 
-          v
-[Dispatch Security Alert] (Webhook.site)
+graph TD
+    A[Daily Intelligence Intake] --> B[Fetch IP Reputation]
+    B --> C[Normalize Data Schema]
+    C --> D[Threat Triage Engine]
+    D -- True --> E[Dispatch Security Alert]
