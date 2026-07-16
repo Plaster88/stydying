@@ -1,0 +1,193 @@
+{
+  "name": "Daily Briefing POC",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "faf2d8c4-52e9-443a-997f-0605eb100029",
+      "name": "Set / Code Node",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        -640,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.log_level }}",
+              "value2": "ERROR"
+            }
+          ]
+        }
+      },
+      "id": "ee5d867d-8029-4cac-9028-12486abf0193",
+      "name": "IF node (conditional logic)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        112
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ee88e833-3280-47ad-b0ac-f392f86c35bc",
+      "name": "Error Workflow",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return { message: \"Notification executed successfully\" };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        16
+      ],
+      "id": "a2c60ddd-5435-4f54-9314-24d650fe8d80",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { message: \"Notification executed successfully\" } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        208
+      ],
+      "id": "86082452-b0f1-43a9-a964-b870e5183bf3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        112
+      ],
+      "id": "afc199d0-7800-4309-91f4-b8a3e112fe7a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"logs\": [\n    {\n      \"Timestamp\": \"2025-05-01\",\n      \"system_name\": \"casb-proxy-01\",\n      \"component\": \"CASB\",\n      \"log_level\": \"WARN\",\n      \"message\": \"Inactive Box OAuth grant for eroberts not revoked\"\n    },\n    {\n      \"Timestamp\": \"2025-05-01\",\n      \"system_name\": \"vuln-scan-01\",\n      \"component\": \"Vulnerability_Scanner\",\n      \"log_level\": \"INFO\",\n      \"message\": \"Asset WKSTN-117 added to scan scope\"\n    },\n    {\n      \"Timestamp\": \"2025-05-01\",\n      \"system_name\": \"casb-proxy-02\",\n      \"component\": \"CASB\",\n      \"log_level\": \"ERROR\",\n      \"message\": \"Threat score enrichment service unreachable\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        112
+      ],
+      "id": "84789e00-7e03-483d-8387-5b43275565f5",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "logs",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        112
+      ],
+      "id": "821ecffa-80ef-483f-aec8-5402fa0fd596",
+      "name": "Split Out"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set / Code Node": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF node (conditional logic)": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Set / Code Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "IF node (conditional logic)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2aaab2d6-3c7b-4af9-9fcf-15adac9841df",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d890697869b19ad6a13a6eaaa75821a5086d3fe3b52f148d574a0ca7e16a90df"
+  },
+  "id": "eu4nipxLb66LKliG",
+  "tags": []
+}

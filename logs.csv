@@ -1,5 +1,0 @@
-Timestamp,system_name,component,log_level,message
-2025-05-01,casb-proxy-01,CASB,WARN,Inactive Box OAuth grant for eroberts not revoked
-2025-05-01,vuln-scan-01,Vulnerability_Scanner,INFO,Asset WKSTN-117 added to scan scope
-2025-05-01,pam-vault-01,PAM,INFO,User glopez checked out credentials for SRV-APP-02
-2025-05-01,casb-proxy-02,CASB,ERROR,Threat score enrichment service unreachable
