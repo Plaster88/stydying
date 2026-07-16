@@ -1,0 +1,176 @@
+{
+  "name": "Daily Briefing POC",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "1a2b3c4d-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [180, 240]
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=52.2298&longitude=21.0118&current_weather=true",
+        "options": {}
+      },
+      "id": "2b3c4d5e-http",
+      "name": "HTTP Request Node",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [400, 240]
+    },
+    {
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "temperature",
+              "value": "={{ $json.current_weather.temperature }}"
+            }
+          ],
+          "string": [
+            {
+              "name": "status_message",
+              "value": "=Current temperature in Warsaw is {{ $json.current_weather.temperature }}°C."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c4d5e6f-set",
+      "name": "Set / Code Node",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [620, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.temperature }}",
+              "operation": "smaller",
+              "value2": 15
+            }
+          ]
+        }
+      },
+      "id": "4d5e6f7g-if",
+      "name": "IF node (conditional logic)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [840, 240]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_SLACK_CHANNEL_ID",
+        "text": "={{ $json.status_message }} It is cold, wear a jacket!",
+        "otherOptions": {}
+      },
+      "id": "5e6f7g8h-slack",
+      "name": "Send Notification (Slack)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1100, 140]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $now }}",
+            "Temperature": "={{ $json.temperature }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "6f7g8h9i-sheets",
+      "name": "Log to spreadsheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [1100, 340]
+    },
+    {
+      "parameters": {},
+      "id": "7g8h9i0j-error",
+      "name": "Error Workflow",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [180, 500]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Node": {
+      "main": [
+        [
+          {
+            "node": "Set / Code Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set / Code Node": {
+      "main": [
+        [
+          {
+            "node": "IF node (conditional logic)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF node (conditional logic)": {
+      "main": [
+        [
+          {
+            "node": "Send Notification (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log to spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
